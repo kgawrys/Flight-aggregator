@@ -1,5 +1,6 @@
 package flightsaggregator
 
-import org.scalatest.{BeforeAndAfterAll, FeatureSpec, GivenWhenThen, Matchers}
+import org.scalatest._
+import org.scalatest.concurrent.ScalaFutures
 
-trait IntegrationTestSuite extends FeatureSpec with Matchers with GivenWhenThen with BeforeAndAfterAll
+trait IntegrationTestSuite extends FlatSpecLike with ScalaFutures with Matchers with GivenWhenThen with BeforeAndAfterAll

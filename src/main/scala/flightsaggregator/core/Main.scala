@@ -31,7 +31,7 @@ trait Setup {
     host = OpenSkyHost(config.getString("services.open-sky.host"))
   )
 
-  lazy val openSkyClientService: OpenSkyService = wire[OpenSkyService]
+  lazy val openSkyService: OpenSkyService = wire[OpenSkyService]
 }
 
 object Main extends App with Setup {
