@@ -36,7 +36,7 @@ class OpenSkyService(config: OpenSkyConfig, logger: LoggingAdapter)(implicit ec:
   private def buildStatesRequest(request: OpenSkyStatesRequest) = RequestBuilding.Get(Uri(s"$host/states/all"))
 
   private def sendRequestToOpenSky[T](request: HttpRequest, failureMessage: String)(implicit conversion: RootJsonFormat[T]) = {
-    logger.debug("[OpenSkyClientService] request sent to Slack {} ", request)
+    logger.debug("[OpenSkyService] request sent to OpenSky {} ", request)
     Http().singleRequest(request).flatMap { response =>
       response.entity.toStrict(5.seconds).flatMap { entity =>
         logRequestResponse(request, response.status, entity)
