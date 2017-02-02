@@ -1,16 +1,17 @@
 package flightsaggregator.core
 
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{ActorSystem, Props}
 import akka.event.Logging
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.ConfigFactory
 import flightsaggregator.PollingActor
 import flightsaggregator.PollingActor.Poll
+import flightsaggregator.kafka.{KafkaConfig, KafkaHost, KafkaPort}
 import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyHost}
 
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 
 case class ServerConfig(interface: String, port: Int, hostname: String)
 
@@ -32,6 +33,11 @@ trait Setup {
 
   lazy val openSkyConfig = OpenSkyConfig(
     openSkyHost = OpenSkyHost(config.getString("services.opensky.host"))
+  )
+
+  lazy val kafkaConfig = KafkaConfig(
+    kafkaHost = KafkaHost(config.getString("kafka.host")),
+    kafkaPort = KafkaPort(config.getInt("kafka.port"))
   )
 
   lazy val openSkyService: OpenSkyService = wire[OpenSkyService]
