@@ -11,6 +11,8 @@ import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain.{FlightState, OpenSkyStatesRequest, OpenSkyStatesResponse}
 import flightsaggregator.stream.StreamHelpers
 import org.apache.kafka.clients.producer.ProducerRecord
+import flightsaggregator.core.http.json.FlightAggregatorJsonFormats._
+import spray.json._
 
 import scala.concurrent.ExecutionContext
 
@@ -37,7 +39,8 @@ class PollingActor(
           logger.info(s"response have: ${resp.states.size}")
           Source.apply(resp.states)
             .via(resumeFlowOnError(toKafkaRecord)(logger))
-            .toMat(kafkaProducer.asSink)(Keep.both).run()
+            .toMat(kafkaProducer.asSink)(Keep.both)
+            .run()
         case e: OpenSkyStatesResponse.OpenSkyError =>
           logger.error(s"Error during connection with OpenSky: ${e.error.message}")
       }
@@ -61,7 +64,7 @@ class PollingActor(
         kafkaConfig.stateTopic.topic,
         0,
         "".getBytes("utf8"),
-        s.toString
+        s.toJson.toString
       ))
 
 }
