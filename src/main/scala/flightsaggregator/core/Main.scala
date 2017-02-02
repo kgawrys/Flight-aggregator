@@ -6,7 +6,7 @@ import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.ConfigFactory
 import flightsaggregator.PollingActor
 import flightsaggregator.PollingActor.Poll
-import flightsaggregator.kafka.{KafkaConfig, KafkaHost, KafkaPort}
+import flightsaggregator.kafka._
 import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyHost}
 
@@ -36,10 +36,12 @@ trait Setup {
   )
 
   lazy val kafkaConfig = KafkaConfig(
-    kafkaHost = KafkaHost(config.getString("kafka.host")),
-    kafkaPort = KafkaPort(config.getInt("kafka.port"))
+    kafkaHost  = KafkaHost(config.getString("kafka.host")),
+    kafkaPort  = KafkaPort(config.getInt("kafka.port")),
+    stateTopic = KafkaTopic(config.getString("kafka.topics.statetopic"))
   )
 
+  lazy val kafkaProducer: KafkaProducer = wire[KafkaProducer]
   lazy val openSkyService: OpenSkyService = wire[OpenSkyService]
 }
 
@@ -48,8 +50,8 @@ object Main extends App with Setup {
   implicit val executor = system.dispatcher
   implicit val materializer = ActorMaterializer()
 
-  val pollFlightsActor = system.actorOf(Props(new PollingActor(logger, openSkyService)))
+  val pollFlightsActor = system.actorOf(Props(new PollingActor(logger, openSkyService, kafkaProducer, kafkaConfig)))
 
-  system.scheduler.schedule(0 seconds, 15 seconds, pollFlightsActor, Poll)
+  system.scheduler.schedule(0 seconds, 30 seconds, pollFlightsActor, Poll)
 
 }

@@ -12,11 +12,13 @@ import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSeriali
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class KafkaProducer(kafkaConfig: KafkaConfig)(implicit as: ActorSystem, mat: Materializer, ec: ExecutionContext, logger: LoggingAdapter) {
+class KafkaProducer(kafkaConfig: KafkaConfig, logger: LoggingAdapter)(implicit as: ActorSystem, mat: Materializer, ec: ExecutionContext) {
+
+  private val kafkaHost = s"${kafkaConfig.kafkaHost.host}:${kafkaConfig.kafkaPort.port}"
 
   val producerSettings = ProducerSettings(as, new ByteArraySerializer, new StringSerializer)
-    .withBootstrapServers(s"${kafkaConfig.kafkaHost.host}:${kafkaConfig.kafkaPort.port}")
-  logger.info("Initializing kafka writer")
+    .withBootstrapServers(kafkaHost)
+  logger.info(s"Initializing kafka writer on kafka host: $kafkaHost")
 
   val asSink: Sink[ProducerRecord[Array[Byte], String], Future[Done]] = Producer.plainSink(producerSettings)
 }
