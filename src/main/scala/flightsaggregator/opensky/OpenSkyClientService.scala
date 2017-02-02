@@ -1,11 +1,13 @@
 package flightsaggregator.opensky
 
+import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.client.RequestBuilding
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model.{HttpEntity, HttpRequest, StatusCode, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.Materializer
 import flightsaggregator.core.http.Error
 import flightsaggregator.opensky.OpenSkyClientService.OpenSkyResponse
 import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyStatesRequest, OpenSkyStatesResponse}
@@ -18,7 +20,7 @@ object OpenSkyClientService {
   type OpenSkyResponse[T] = Either[Error, T]
 }
 
-class OpenSkyClientService(config: OpenSkyConfig, logger: LoggingAdapter)(implicit ec: ExecutionContext) {
+class OpenSkyClientService(config: OpenSkyConfig, logger: LoggingAdapter)(implicit ec: ExecutionContext, as: ActorSystem, mat: Materializer) {
 
   private val host = config.host
 
