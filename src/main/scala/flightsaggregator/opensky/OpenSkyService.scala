@@ -11,15 +11,15 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import flightsaggregator.core.http.Error
 import flightsaggregator.core.http.json.FlightAggregatorJsonProtocol._
+import flightsaggregator.opensky.domain.OpenSkyStatesResponse.States
 import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyStatesRequest, OpenSkyStatesResponse}
-import spray.json.RootJsonFormat
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 object OpenSkyService {
   type OpenSkyResponse[T] = Either[Error, T]
-  implicit val openSkyStatesResponseFormat = jsonFormat2(OpenSkyStatesResponse.apply)
+  implicit val statesFormat = jsonFormat2(States.apply)
 }
 
 class OpenSkyService(config: OpenSkyConfig, logger: LoggingAdapter)(implicit ec: ExecutionContext, as: ActorSystem, mat: Materializer) {
@@ -28,25 +28,22 @@ class OpenSkyService(config: OpenSkyConfig, logger: LoggingAdapter)(implicit ec:
 
   private val host = config.openSkyHost.host
 
-  def getStates(request: OpenSkyStatesRequest): Future[OpenSkyResponse[OpenSkyStatesResponse]] = {
+  def getStates(request: OpenSkyStatesRequest): Future[OpenSkyStatesResponse] = {
     val statesRequest = buildStatesRequest(request)
-    sendRequestToOpenSky[OpenSkyStatesResponse](statesRequest, "Couldn't retrieve OpenSky states.")
-  }
 
-  private def buildStatesRequest(request: OpenSkyStatesRequest) = RequestBuilding.Get(Uri(s"$host/states/all"))
-
-  private def sendRequestToOpenSky[T](request: HttpRequest, failureMessage: String)(implicit conversion: RootJsonFormat[T]) = {
     logger.debug("[OpenSkyService] request sent to OpenSky {} ", request)
-    Http().singleRequest(request).flatMap { response =>
+    Http().singleRequest(statesRequest).flatMap { response =>
       response.entity.toStrict(5.seconds).flatMap { entity =>
-        logRequestResponse(request, response.status, entity)
+        //        logRequestResponse(statesRequest, response.status, entity)
         response.status match {
-          case OK => Unmarshal(entity).to[T].map(Right(_))
-          case _  => Future.successful(Left(Error(failureMessage)))
+          case OK => Unmarshal(entity).to[OpenSkyStatesResponse.States]
+          case _  => Future.successful(OpenSkyStatesResponse.OpenSkyError(Error("Couldn't retrieve OpenSky states.")))
         }
       }
     }
   }
+
+  private def buildStatesRequest(request: OpenSkyStatesRequest) = RequestBuilding.Get(Uri(s"$host/states/all"))
 
   private def logRequestResponse(request: HttpRequest, status: StatusCode, response: HttpEntity.Strict): Unit =
     logger.info(infoMessage(request, status, response.data.utf8String))

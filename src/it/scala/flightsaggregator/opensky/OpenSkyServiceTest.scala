@@ -13,10 +13,10 @@ class OpenSkyServiceTest extends IntegrationTestSuite with IntegrationTestModule
     val req = OpenSkyStatesRequest()
     val timeout = Timeout(Span(1, Minute))
     whenReady(openSkyService.getStates(req), timeout) {
-      case Right(statesResponse) =>
-        statesResponse shouldBe a[OpenSkyStatesResponse]
-        logger.info(statesResponse.toString)
-      case _ => fail("Fail to call OpenSky states endpoint")
+      case resp:OpenSkyStatesResponse.States =>
+        logger.info(s"Response have ${resp.states.size} states.")
+      case resp:OpenSkyStatesResponse.OpenSkyError => fail(resp.error.message)
+      case _ => fail("Unexpected error")
     }
   }
 }

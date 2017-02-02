@@ -5,7 +5,7 @@ import akka.event.LoggingAdapter
 import akka.stream.Materializer
 import flightsaggregator.PollingActor.{Poll, Stop}
 import flightsaggregator.opensky.OpenSkyService
-import flightsaggregator.opensky.domain.OpenSkyStatesRequest
+import flightsaggregator.opensky.domain.{OpenSkyStatesRequest, OpenSkyStatesResponse}
 
 import scala.concurrent.ExecutionContext
 
@@ -14,7 +14,12 @@ class PollingActor(logger: LoggingAdapter, openSkyService: OpenSkyService)(impli
     case Poll =>
       logger.info("Received poll request")
       val states = openSkyService.getStates(new OpenSkyStatesRequest())
-      states.map(resp => logger.info(s"response have: ${resp.right.get.states.size}"))
+      states.map {
+        case resp: OpenSkyStatesResponse.States =>
+          logger.info(s"response have: ${resp.states.size}")
+        case e: OpenSkyStatesResponse.OpenSkyError =>
+          logger.error(s"Error during connection with OpenSky: ${e.error.message}")
+      }
     case Stop =>
       logger.info("Shutting down polling actor")
       context.stop(self)
@@ -27,3 +32,4 @@ object PollingActor {
   case object Poll
   case object Stop
 }
+
