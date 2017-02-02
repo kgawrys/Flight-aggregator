@@ -10,7 +10,7 @@ scalaVersion := "2.11.8"
 
 libraryDependencies ++= Dependencies.apiCore
 
-scalacOptions := Seq("-target:jvm-1.8", "-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
+scalacOptions := Seq("-target:jvm-1.8", "-unchecked", "-deprecation", "-feature", "-encoding", "utf8", "-language:implicitConversions", "-language:postfixOps")
 
 configs(IntegrationTest)
 
@@ -34,3 +34,5 @@ Seq(Defaults.itSettings: _*)
 
 // ALIASES
 addCommandAlias("compileAll", ";compile;test:compile;it:compile")
+
+cancelable in Global := true
