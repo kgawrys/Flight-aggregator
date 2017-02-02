@@ -1,11 +1,12 @@
 import sbt._
 
 object Version {
-  val akkaV        = "2.4.10"
-  val akkaHttpV    = "2.4.10"
-  val logbackV     = "1.1.9"
-  val macwireV     = "2.2.5"
-  val scalaTestV   = "3.0.1"
+  val akkaV           = "2.4.10"
+  val akkaHttpV       = "2.4.10"
+  val logbackV        = "1.1.9"
+  val macwireV        = "2.2.5"
+  val scalaTestV      = "3.0.1"
+  val reactiveKafkaV  = "0.13"
 }
 
 object Library {
@@ -15,6 +16,7 @@ object Library {
   val akkaActor        = "com.typesafe.akka"         %% "akka-actor"                        % akkaV
   val akkaSfl4j        = "com.typesafe.akka"         %% "akka-slf4j"                        % akkaV
   val akkaStream       = "com.typesafe.akka"         %% "akka-stream"                       % akkaV
+  val reactiveKafka    = "com.typesafe.akka"         %% "akka-stream-kafka"                 % reactiveKafkaV
 
   // http
   val akkaHttpCore     = "com.typesafe.akka"         %% "akka-http-core"                    % akkaHttpV
@@ -36,6 +38,7 @@ object Dependencies {
 
   val apiCore = Seq(
     akkaActor, akkaSfl4j, akkaStream, akkaHttpCore, akkaHttp, akkaHttpTestkit, akkaSprayJson,
+    reactiveKafka,
     logback,
     scalatest,
     macwireMacros % "provided",
