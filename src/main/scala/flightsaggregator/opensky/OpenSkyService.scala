@@ -26,7 +26,7 @@ class OpenSkyService(config: OpenSkyConfig, logger: LoggingAdapter)(implicit ec:
 
   import OpenSkyService._
 
-  private val host = config.host
+  private val host = config.openSkyHost.host
 
   def getStates(request: OpenSkyStatesRequest): Future[OpenSkyResponse[OpenSkyStatesResponse]] = {
     val statesRequest = buildStatesRequest(request)

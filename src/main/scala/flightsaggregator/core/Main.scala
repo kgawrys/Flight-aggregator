@@ -28,7 +28,7 @@ trait Setup {
   )
 
   lazy val openSkyConfig = OpenSkyConfig(
-    host = OpenSkyHost(config.getString("services.opensky.host"))
+    openSkyHost = OpenSkyHost(config.getString("services.opensky.host"))
   )
 
   lazy val openSkyService: OpenSkyService = wire[OpenSkyService]

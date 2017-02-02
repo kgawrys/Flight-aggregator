@@ -6,4 +6,4 @@ case class OpenSkyStatesResponse(time: Int, states: List[String])
 
 case class OpenSkyHost(host: String) extends AnyVal
 
-case class OpenSkyConfig(host: OpenSkyHost)
+case class OpenSkyConfig(openSkyHost: OpenSkyHost)
