@@ -23,7 +23,6 @@ trait FlightAggregatorJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-
   implicit val errorJsonFormat = new RootJsonFormat[Error] {
     override def write(obj: Error): JsValue = {
       val msg = obj.logUuid match {

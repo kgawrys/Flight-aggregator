@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.ConfigFactory
-import flightsaggregator.opensky.OpenSkyClientService
+import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyHost}
 
 import scala.concurrent.ExecutionContext
@@ -28,10 +28,10 @@ trait Setup {
   )
 
   lazy val openSkyConfig = OpenSkyConfig(
-    host  = OpenSkyHost(config.getString("services.open-sky.host"))
+    host = OpenSkyHost(config.getString("services.open-sky.host"))
   )
 
-  lazy val openSkyClientService: OpenSkyClientService = wire[OpenSkyClientService]
+  lazy val openSkyClientService: OpenSkyService = wire[OpenSkyService]
 }
 
 object Main extends App with Setup {

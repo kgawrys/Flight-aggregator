@@ -17,14 +17,14 @@ import spray.json.RootJsonFormat
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
-object OpenSkyClientService {
+object OpenSkyService {
   type OpenSkyResponse[T] = Either[Error, T]
   implicit val openSkyStatesResponseFormat = jsonFormat2(OpenSkyStatesResponse.apply)
 }
 
-class OpenSkyClientService(config: OpenSkyConfig, logger: LoggingAdapter)(implicit ec: ExecutionContext, as: ActorSystem, mat: Materializer) {
+class OpenSkyService(config: OpenSkyConfig, logger: LoggingAdapter)(implicit ec: ExecutionContext, as: ActorSystem, mat: Materializer) {
 
-  import OpenSkyClientService._
+  import OpenSkyService._
 
   private val host = config.host
 
