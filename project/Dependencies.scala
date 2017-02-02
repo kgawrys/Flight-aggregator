@@ -22,7 +22,7 @@ object Library {
   val akkaHttpCore     = "com.typesafe.akka"         %% "akka-http-core"                    % akkaHttpV
   val akkaHttp         = "com.typesafe.akka"         %% "akka-http-experimental"            % akkaHttpV
   val akkaSprayJson    = "com.typesafe.akka"         %% "akka-http-spray-json-experimental" % akkaHttpV
-  val akkaHttpTestkit  =  "com.typesafe.akka"        %% "akka-http-testkit"                 % akkaHttpV
+  val akkaHttpTestkit  = "com.typesafe.akka"         %% "akka-http-testkit"                 % akkaHttpV
 
   // macwire
   val macwireMacros    = "com.softwaremill.macwire"  %% "macros"                            % macwireV
@@ -30,7 +30,7 @@ object Library {
 
   // other
   val logback          = "ch.qos.logback"            % "logback-classic"                    % logbackV
-  val scalatest        =  "org.scalatest"            %% "scalatest"                         % scalaTestV
+  val scalatest        = "org.scalatest"             %% "scalatest"                         % scalaTestV
 }
 
 object Dependencies {
