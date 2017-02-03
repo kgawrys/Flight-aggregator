@@ -8,10 +8,10 @@ import com.websudos.phantom.connectors.ContactPoint
 import flightsaggregator.PollingActor
 import flightsaggregator.PollingActor.Poll
 import flightsaggregator.aggregator.AggregatorService
+import flightsaggregator.core.cassandra.{AppDatabase, CassandraConfig}
 import flightsaggregator.kafka._
 import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyHost}
-import flightsaggregator.repository.{AppDatabase, CassandraConfig}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._

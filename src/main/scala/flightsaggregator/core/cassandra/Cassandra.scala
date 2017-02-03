@@ -1,4 +1,4 @@
-package flightsaggregator.repository
+package flightsaggregator.core.cassandra
 
 case class CassandraConfig(
   hostname: String,
