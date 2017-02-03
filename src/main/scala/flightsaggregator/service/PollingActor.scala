@@ -1,17 +1,17 @@
-package flightsaggregator
+package flightsaggregator.service
 
 import akka.NotUsed
 import akka.actor.Actor
 import akka.event.LoggingAdapter
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Keep, Source}
-import flightsaggregator.PollingActor.{Poll, ProdMessage, Stop}
+import flightsaggregator.core.http.json.FlightAggregatorJsonFormats._
 import flightsaggregator.kafka.{KafkaConfig, KafkaProducer}
 import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain._
+import flightsaggregator.service.PollingActor.{Poll, ProdMessage, Stop}
 import flightsaggregator.stream.StreamHelpers
 import org.apache.kafka.clients.producer.ProducerRecord
-import flightsaggregator.core.http.json.FlightAggregatorJsonFormats._
 import spray.json._
 
 import scala.concurrent.ExecutionContext

@@ -5,13 +5,12 @@ import akka.event.Logging
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.ConfigFactory
 import com.websudos.phantom.connectors.ContactPoint
-import flightsaggregator.PollingActor
-import flightsaggregator.PollingActor.Poll
-import flightsaggregator.aggregator.AggregatorService
 import flightsaggregator.core.cassandra.{AppDatabase, CassandraConfig}
 import flightsaggregator.kafka._
 import flightsaggregator.opensky.OpenSkyService
-import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyHost}
+import flightsaggregator.opensky.domain.{FlightState, OpenSkyConfig, OpenSkyHost}
+import flightsaggregator.service.PollingActor.Poll
+import flightsaggregator.service.{AggregatorService, PollingActor}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -75,6 +74,10 @@ object Main extends App with Setup {
 
   val pollFlightsActor = system.actorOf(Props(new PollingActor(logger, openSkyService, kafkaProducer, kafkaConfig)))
   system.scheduler.schedule(0 seconds, appConfig.pollInterval seconds, pollFlightsActor, Poll)
-
   aggregatorService.graph.run()
+
+  db.flightstates.store(FlightState("samolocik", "PL", Some(BigDecimal(1)), true)).map {
+    case true  => logger.info("it works")
+    case false => logger.info("nope")
+  }
 }

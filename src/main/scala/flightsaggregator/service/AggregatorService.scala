@@ -1,15 +1,15 @@
-package flightsaggregator.aggregator
+package flightsaggregator.service
 
 import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.kafka.ConsumerMessage.CommittableMessage
+import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Sink}
-import akka.stream.{Materializer, ThrottleMode}
 import akka.{Done, NotUsed}
-import flightsaggregator.aggregator.AggregatorService.{ConsumerMessage, OriginFlights}
 import flightsaggregator.core.AppConfig
 import flightsaggregator.kafka.{KafkaConfig, KafkaConsumer}
 import flightsaggregator.opensky.domain.FlightState
+import flightsaggregator.service.AggregatorService.{ConsumerMessage, OriginFlights}
 import spray.json._
 import flightsaggregator.core.http.json.FlightAggregatorJsonFormats._
 
