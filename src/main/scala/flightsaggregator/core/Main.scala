@@ -77,6 +77,7 @@ object Main extends App with Setup {
 
   val pollFlightsActor = system.actorOf(Props(new PollingActor(logger, openSkyService, kafkaProducer, kafkaConfig)))
   system.scheduler.schedule(0 seconds, appConfig.pollInterval seconds, pollFlightsActor, Poll)
+
   aggregatorService.graph.run()
 
   flightStateService.saveFlightState(FlightState("samolocik", "PL", Some(BigDecimal(1)), false))

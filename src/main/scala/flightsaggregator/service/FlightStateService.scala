@@ -9,10 +9,13 @@ import flightsaggregator.repository.FlightStateRepository
 import scala.concurrent.ExecutionContext
 
 class FlightStateService(flightStatesRepository: FlightStateRepository, logger: LoggingAdapter)(implicit ec: ExecutionContext, as: ActorSystem, mat: Materializer) {
+
   def saveFlightState(flightState: FlightState) = {
     flightStatesRepository.storeFlightEvent(flightState).map {
-      case true  => logger.info("it works")
-      case false => logger.info("nope")
+      case true  =>
+        logger.info("Element Saved successfully")
+      case false =>
+        logger.error(s"Failed to save element: ${flightState.toString}")
     }
   }
 }
