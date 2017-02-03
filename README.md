@@ -39,6 +39,20 @@ Streams 2 and 3 could be substreams in one broadcast but such solution could hav
 
 Those are default config values but they can be replaced by environment variables.
 
+Cassandra should have keyspace named `flights`
+```
+CREATE KEYSPACE flights WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+```
+and table
+```
+CREATE TABLE flightstates (
+    icao24 text PRIMARY KEY,
+    origincountry text,
+    timeposition decimal,
+    onground boolean
+);
+```
+
 Tested on local `kafka_2.11-0.10.1.0`
 and Cassandra docker image from https://hub.docker.com/_/cassandra/
 
