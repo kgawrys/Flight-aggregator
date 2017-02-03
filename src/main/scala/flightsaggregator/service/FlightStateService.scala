@@ -1,10 +1,10 @@
 package flightsaggregator.service
 
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Sink}
-import akka.{Done, NotUsed}
 import flightsaggregator.core.http.json.FlightAggregatorJsonFormats._
 import flightsaggregator.kafka.KafkaConsumer.ConsumerMessage
 import flightsaggregator.kafka.{KafkaConfig, KafkaConsumer}
@@ -22,8 +22,6 @@ class FlightStateService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig,
   private val transformFlow: Flow[ConsumerMessage, FlightState, NotUsed] =
     Flow[ConsumerMessage]
       .map(m => m.record.value.parseJson.convertTo[FlightState])
-
-  private val loggingSink: Sink[FlightState, Future[Done]] = Sink.foreach(elem => logger.info(s"elem ${elem.toString}"))
 
   private val cassandraWriterFlow: Flow[FlightState, Unit, NotUsed] =
     Flow[FlightState]

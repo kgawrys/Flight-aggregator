@@ -36,7 +36,7 @@ class PollingActor(
       val states = openSkyService.getStates(new OpenSkyStatesRequest())
       states.map {
         case resp: OpenSkyStatesResponse.States =>
-          logger.info(s"response have: ${resp.states.size}")
+          logger.info(s"Acquired ${resp.states.size} states from OpenSky response")
           Source.apply(resp.states.map(toFlightStateMsg))
             .via(resumeFlowOnError(toKafkaRecord)(logger))
             .toMat(kafkaProducer.asSink)(Keep.both)
