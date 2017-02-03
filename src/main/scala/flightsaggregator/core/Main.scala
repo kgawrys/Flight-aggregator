@@ -11,7 +11,7 @@ import flightsaggregator.aggregator.AggregatorService
 import flightsaggregator.kafka._
 import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyHost}
-import flightsaggregator.repository.CassandraConfig
+import flightsaggregator.repository.{AppDatabase, CassandraConfig}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -59,10 +59,8 @@ trait Setup {
     keyspace                = config.getString("cassandra.keyspace")
   )
 
-  //  val hosts = config.getStringList("cassandra.hosts").asScala.toSeq
-  val Connector = ContactPoint.apply("172.17.0.2", 9042).keySpace("flights") // todo get from conf
-  //  val connector = ContactPoints.apply(hosts).keySpace(config.getString("cassandra.keyspace"))
-  //  val db = new Database(connector)
+  lazy val connector = ContactPoint.apply(cassandraConfig.hostname, cassandraConfig.port).keySpace(cassandraConfig.keyspace)
+  lazy val db = new AppDatabase(connector)
 
   lazy val kafkaProducer: KafkaProducer = wire[KafkaProducer]
   lazy val kafkaConsumer: KafkaConsumer = wire[KafkaConsumer]
