@@ -29,6 +29,8 @@ There are 3 separate ways of processing:
 2. Stream that consumes messages from Kafka in time limited window. This stream calculates the aggregated stream data.
 3. Stream that consumes messages from Kafka and saves them to Cassandra
 
+Kafka sends each record to both consumers in a broadcast manner because they have different consumer group IDs.
+
 Streams 2 and 3 could be substreams in one broadcast but such solution could have issues with backpressure. Main problem would be in a situation when writes to Cassandra were slower than amount of elements from upstream which would lead to backpressure on broadcast. This would result in smaller amount of elements targetting second substream with time window. This would mean that the results from time window would be slippery.
 
 ## Prerequisites
