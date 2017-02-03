@@ -30,9 +30,9 @@ class AggregatorService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, 
   private val loggingFlow: Flow[ConsumerMessage, ConsumerMessage, NotUsed] =
     Flow[ConsumerMessage].map(m => { logger.info(m.toString); m })
 
-  private val loggingSink: Sink[Iterable[OriginFlights], Future[Done]] = Sink.foreach(fomap => fomap.foreach {
-    fo => logger.info(summaryMessage(fo))
-  })
+  private val loggingSink: Sink[Iterable[OriginFlights], Future[Done]] =
+    Sink.foreach(fomap =>
+      logger.info(fomap.map { fo => summaryMessage(fo) }.mkString("\n")))
 
   private def summaryMessage(ofc: OriginFlights) =
     s"${ofc.origin}, ${ofc.count} flights originated from the ${ofc.origin} in the last ${appConfig.windowInterval} seconds"
