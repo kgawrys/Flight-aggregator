@@ -36,10 +36,8 @@ class FlightStateService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig,
 
   def saveFlightState(flightState: FlightState): Future[Unit] = {
     flightStatesRepository.storeFlightEvent(flightState).map {
-      case true =>
-        logger.info("Element Saved successfully")
-      case false =>
-        logger.error(s"Failed to save element: ${flightState.toString}")
+      case true  => Unit
+      case false => logger.error(s"Failed to save element: ${flightState.toString}")
     }
   }
 }
