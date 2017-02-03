@@ -5,13 +5,22 @@ The main purpose of this project was to show interoperability between technologi
 
 ## Functionalities
 
-The code fulfills following functionalities:
+From the top point of view, the code asks OpenSky API, aggregate responses and return summary like:
 
-1. It provides an akka actor that connects with the restful endpoint of OpenSky, periodically polls it and write the data to Kafka
+```
+United States, 200 flights originated from the US in the last 5mins
+Thailand, 40 flights originated from the Thailand in the last 5mins
+```
+It also saves the data to Cassandra.
 
-2. It provides a consumer that reads up those messages and writes them in a Cassandra Database
 
-3. It provides an akka-stream based time window, that works on the stream of data consumed from Kafka, Aggregates it at every 5mins window and within that window counts the number of planes and groups them by the country of origin
+More specifically the code:
+
+1. provides an akka actor that connects with the restful endpoint of OpenSky, periodically polls it and write the data to Kafka
+
+2. provides a consumer that reads up those messages and writes them in a Cassandra Database
+
+3. provides an akka-stream based time window, that works on the stream of data consumed from Kafka, Aggregates it at every 5mins window and within that window counts the number of planes and groups them by the country of origin
 
 ## Architecture
 
