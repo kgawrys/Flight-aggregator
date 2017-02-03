@@ -28,15 +28,20 @@ class AggregatorService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, 
   private val loggingFlow: Flow[ConsumerMessage, ConsumerMessage, NotUsed] =
     Flow[ConsumerMessage].map(m => { logger.info(m.toString); m })
 
-  private val loggingSink: Sink[FlightState, Future[Done]] = Sink.foreach(elem => logger.info(s"Processing element: $elem"))
+  private val loggingSink: Sink[Int, Future[Done]] = Sink.foreach(elem => logger.info(s"Processing element: $elem"))
 
   val transformFlow: Flow[ConsumerMessage, FlightState, NotUsed] =
     Flow[ConsumerMessage]
       .map(m => m.record.value.parseJson.convertTo[FlightState])
 
+  val stats = Flow[FlightState]
+    .groupedWithin(10000, 3 second)
+    .map { s => s.size }
+
   val graph = kafkaSource
-    .throttle(1, 1.second, 1, ThrottleMode.shaping)
+    //    .throttle(1, 1.second, 1, ThrottleMode.shaping)
     .via(resumeFlowOnError(transformFlow)(logger))
+    .via(resumeFlowOnError(stats)(logger))
     .to(loggingSink)
 
 }
