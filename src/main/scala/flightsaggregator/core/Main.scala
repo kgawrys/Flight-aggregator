@@ -9,6 +9,7 @@ import flightsaggregator.core.cassandra.{AppDatabase, CassandraConfig}
 import flightsaggregator.kafka._
 import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain.{FlightState, OpenSkyConfig, OpenSkyHost}
+import flightsaggregator.repository.FlightStateRepository
 import flightsaggregator.service.PollingActor.Poll
 import flightsaggregator.service.{AggregatorService, PollingActor}
 
@@ -60,6 +61,7 @@ trait Setup {
 
   lazy val connector = ContactPoint.apply(cassandraConfig.hostname, cassandraConfig.port).keySpace(cassandraConfig.keyspace)
   lazy val db = new AppDatabase(connector)
+  lazy val flightStateRepository: FlightStateRepository = wire[FlightStateRepository]
 
   lazy val kafkaProducer: KafkaProducer = wire[KafkaProducer]
   lazy val kafkaConsumer: KafkaConsumer = wire[KafkaConsumer]
