@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 case class ServerConfig(interface: String, port: Int, hostname: String)
-case class AppConfig(pollInterval: Int)
+case class AppConfig(pollInterval: Int, windowInterval: Int)
 
 trait Setup {
   import com.softwaremill.macwire._
@@ -44,7 +44,8 @@ trait Setup {
   )
 
   lazy val appConfig = AppConfig(
-    pollInterval = config.getInt("app.pollinterval")
+    pollInterval   = config.getInt("app.pollinterval"),
+    windowInterval = config.getInt("app.windowinterval")
   )
 
   lazy val kafkaProducer: KafkaProducer = wire[KafkaProducer]
