@@ -25,7 +25,7 @@ class FlightStateService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig,
 
   private val loggingSink: Sink[FlightState, Future[Done]] = Sink.foreach(elem => logger.info(s"elem ${elem.toString}"))
 
-  val graph = kafkaSource
+  val savingStream = kafkaSource
     .via(resumeFlowOnError(transformFlow)(logger))
     .to(loggingSink)
 

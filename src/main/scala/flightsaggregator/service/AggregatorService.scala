@@ -45,7 +45,7 @@ class AggregatorService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, 
     .groupedWithin(10000, appConfig.windowInterval second)
     .map { s => s.groupBy(_.originCountry).map { kv => OriginFlights(kv._1, kv._2.size) } }
 
-  val graph = kafkaSource
+  val aggregatingStream = kafkaSource
     .via(resumeFlowOnError(transformFlow)(logger))
     .via(resumeFlowOnError(stats)(logger))
     .to(loggingSink)

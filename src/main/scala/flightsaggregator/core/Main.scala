@@ -80,8 +80,8 @@ object Main extends App with Setup {
   system.scheduler.schedule(0 seconds, appConfig.pollInterval seconds, pollFlightsActor, Poll)
 
   // Stream aggregating flights in time window
-  aggregatorService.graph.run
+  aggregatorService.aggregatingStream.run
 
   // Stream saving all flight states to Cassandra
-  flightStateService.graph.run
+  flightStateService.savingStream.run
 }
