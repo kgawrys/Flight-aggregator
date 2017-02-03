@@ -51,13 +51,6 @@ class PollingActor(
       logger.warning("Unknown message received")
   }
 
-  private val loggingFlow: Flow[ProdMessage, ProdMessage, NotUsed] =
-    Flow[ProdMessage]
-      .map(m => {
-        logger.info(m.toString)
-        m
-      })
-
   private val toKafkaRecord: Flow[FlightState, ProdMessage, NotUsed] =
     Flow[FlightState]
       .map(s => new ProducerRecord(

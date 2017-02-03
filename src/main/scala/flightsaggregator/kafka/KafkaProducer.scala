@@ -14,11 +14,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class KafkaProducer(kafkaConfig: KafkaConfig, logger: LoggingAdapter)(implicit as: ActorSystem, mat: Materializer, ec: ExecutionContext) {
 
-  private val kafkaHost = s"${kafkaConfig.kafkaHost.host}:${kafkaConfig.kafkaPort.port}"
-
   val producerSettings = ProducerSettings(as, new ByteArraySerializer, new StringSerializer)
-    .withBootstrapServers(kafkaHost)
-  logger.info(s"Initializing kafka writer on kafka host: $kafkaHost")
+    .withBootstrapServers(kafkaConfig.kafkaHost)
+  logger.info(s"Initializing kafka writer on kafka host: ${kafkaConfig.kafkaHost}")
 
   val asSink: Sink[ProducerRecord[Array[Byte], String], Future[Done]] = Producer.plainSink(producerSettings)
 }
