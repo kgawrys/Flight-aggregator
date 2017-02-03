@@ -4,14 +4,14 @@ import akka.actor.{ActorSystem, Props}
 import akka.event.Logging
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.ConfigFactory
-import com.websudos.phantom.dsl._
-import com.websudos.phantom.connectors.{ContactPoint, KeySpaceDef}
+import com.websudos.phantom.connectors.ContactPoint
 import flightsaggregator.PollingActor
 import flightsaggregator.PollingActor.Poll
 import flightsaggregator.aggregator.AggregatorService
 import flightsaggregator.kafka._
 import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyHost}
+import flightsaggregator.repository.CassandraConfig
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -50,14 +50,19 @@ trait Setup {
     windowInterval = config.getInt("app.windowinterval")
   )
 
+  lazy val cassandraConfig = CassandraConfig(
+    hostname                = config.getString("cassandra.hostname"),
+    port                    = config.getInt("cassandra.port"),
+    replicationStrategy     = config.getString("cassandra.replication-strategy"),
+    replicationFactor       = config.getString("cassandra.replication-factor"),
+    defaultConsistencyLevel = config.getString("cassandra.default-consistency-level"),
+    keyspace                = config.getString("cassandra.keyspace")
+  )
+
   //  val hosts = config.getStringList("cassandra.hosts").asScala.toSeq
   val Connector = ContactPoint.apply("172.17.0.2", 9042).keySpace("flights") // todo get from conf
-//  val connector = ContactPoints.apply(hosts).keySpace(config.getString("cassandra.keyspace"))
+  //  val connector = ContactPoints.apply(hosts).keySpace(config.getString("cassandra.keyspace"))
   //  val db = new Database(connector)
-
-  //  lazy val cassandraConfig = CassandraConfig (
-  //
-  //  )
 
   lazy val kafkaProducer: KafkaProducer = wire[KafkaProducer]
   lazy val kafkaConsumer: KafkaConsumer = wire[KafkaConsumer]
