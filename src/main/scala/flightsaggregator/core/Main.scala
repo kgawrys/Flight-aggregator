@@ -11,7 +11,7 @@ import flightsaggregator.opensky.OpenSkyService
 import flightsaggregator.opensky.domain.{FlightState, OpenSkyConfig, OpenSkyHost}
 import flightsaggregator.repository.FlightStateRepository
 import flightsaggregator.service.PollingActor.Poll
-import flightsaggregator.service.{AggregatorService, PollingActor}
+import flightsaggregator.service.{AggregatorService, FlightStateService, PollingActor}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -62,6 +62,7 @@ trait Setup {
   lazy val connector = ContactPoint.apply(cassandraConfig.hostname, cassandraConfig.port).keySpace(cassandraConfig.keyspace)
   lazy val db = new AppDatabase(connector)
   lazy val flightStateRepository: FlightStateRepository = wire[FlightStateRepository]
+  lazy val flightStateService: FlightStateService = wire[FlightStateService]
 
   lazy val kafkaProducer: KafkaProducer = wire[KafkaProducer]
   lazy val kafkaConsumer: KafkaConsumer = wire[KafkaConsumer]
@@ -78,8 +79,5 @@ object Main extends App with Setup {
   system.scheduler.schedule(0 seconds, appConfig.pollInterval seconds, pollFlightsActor, Poll)
   aggregatorService.graph.run()
 
-  db.flightstates.store(FlightState("samolocik", "PL", Some(BigDecimal(1)), true)).map {
-    case true  => logger.info("it works")
-    case false => logger.info("nope")
-  }
+  flightStateService.saveFlightState(FlightState("samolocik", "PL", Some(BigDecimal(1)), false))
 }

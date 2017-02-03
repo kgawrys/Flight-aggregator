@@ -1,7 +1,18 @@
 package flightsaggregator.service
 
-import flightsaggregator.repository.FlightStates
+import akka.actor.ActorSystem
+import akka.event.LoggingAdapter
+import akka.stream.Materializer
+import flightsaggregator.opensky.domain.FlightState
+import flightsaggregator.repository.FlightStateRepository
 
-class FlightStateService(flightStatesRepository: FlightStates) {
+import scala.concurrent.ExecutionContext
 
+class FlightStateService(flightStatesRepository: FlightStateRepository, logger: LoggingAdapter)(implicit ec: ExecutionContext, as: ActorSystem, mat: Materializer) {
+  def saveFlightState(flightState: FlightState) = {
+    flightStatesRepository.storeFlightEvent(flightState).map {
+      case true  => logger.info("it works")
+      case false => logger.info("nope")
+    }
+  }
 }
