@@ -4,6 +4,8 @@ import akka.actor.{ActorSystem, Props}
 import akka.event.Logging
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.ConfigFactory
+import com.websudos.phantom.dsl._
+import com.websudos.phantom.connectors.{ContactPoint, KeySpaceDef}
 import flightsaggregator.PollingActor
 import flightsaggregator.PollingActor.Poll
 import flightsaggregator.aggregator.AggregatorService
@@ -47,6 +49,15 @@ trait Setup {
     pollInterval   = config.getInt("app.pollinterval"),
     windowInterval = config.getInt("app.windowinterval")
   )
+
+  //  val hosts = config.getStringList("cassandra.hosts").asScala.toSeq
+  val Connector = ContactPoint.apply("172.17.0.2", 9042).keySpace("flights") // todo get from conf
+//  val connector = ContactPoints.apply(hosts).keySpace(config.getString("cassandra.keyspace"))
+  //  val db = new Database(connector)
+
+  //  lazy val cassandraConfig = CassandraConfig (
+  //
+  //  )
 
   lazy val kafkaProducer: KafkaProducer = wire[KafkaProducer]
   lazy val kafkaConsumer: KafkaConsumer = wire[KafkaConsumer]

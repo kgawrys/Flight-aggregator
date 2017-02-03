@@ -37,16 +37,15 @@ class AggregatorService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, 
   private def summaryMessage(ofc: OriginFlights) =
     s"${ofc.origin}, ${ofc.count} flights originated from the ${ofc.origin} in the last ${appConfig.windowInterval} seconds"
 
-  val transformFlow: Flow[ConsumerMessage, FlightState, NotUsed] =
+  private val transformFlow: Flow[ConsumerMessage, FlightState, NotUsed] =
     Flow[ConsumerMessage]
       .map(m => m.record.value.parseJson.convertTo[FlightState])
 
-  val stats = Flow[FlightState]
+  private val stats = Flow[FlightState]
     .groupedWithin(10000, appConfig.windowInterval second)
     .map { s => s.groupBy(_.originCountry).map { kv => OriginFlights(kv._1, kv._2.size) } }
 
   val graph = kafkaSource
-    //    .throttle(1, 1.second, 1, ThrottleMode.shaping)
     .via(resumeFlowOnError(transformFlow)(logger))
     .via(resumeFlowOnError(stats)(logger))
     .to(loggingSink)

@@ -7,6 +7,7 @@ object Version {
   val macwireV        = "2.2.5"
   val scalaTestV      = "3.0.1"
   val reactiveKafkaV  = "0.13"
+  val phantomVersion  = "1.27.0"
 }
 
 object Library {
@@ -16,6 +17,8 @@ object Library {
   val akkaActor        = "com.typesafe.akka"         %% "akka-actor"                        % akkaV
   val akkaSfl4j        = "com.typesafe.akka"         %% "akka-slf4j"                        % akkaV
   val akkaStream       = "com.typesafe.akka"         %% "akka-stream"                       % akkaV
+
+  // kafka
   val reactiveKafka    = "com.typesafe.akka"         %% "akka-stream-kafka"                 % reactiveKafkaV
 
   // http
@@ -23,6 +26,9 @@ object Library {
   val akkaHttp         = "com.typesafe.akka"         %% "akka-http-experimental"            % akkaHttpV
   val akkaSprayJson    = "com.typesafe.akka"         %% "akka-http-spray-json-experimental" % akkaHttpV
   val akkaHttpTestkit  = "com.typesafe.akka"         %% "akka-http-testkit"                 % akkaHttpV
+
+  // cassandra
+  val cassandra        = "com.websudos"              %% "phantom-dsl"                       % phantomVersion
 
   // macwire
   val macwireMacros    = "com.softwaremill.macwire"  %% "macros"                            % macwireV
@@ -39,6 +45,7 @@ object Dependencies {
   val apiCore = Seq(
     akkaActor, akkaSfl4j, akkaStream, akkaHttpCore, akkaHttp, akkaHttpTestkit, akkaSprayJson,
     reactiveKafka,
+    cassandra,
     logback,
     scalatest,
     macwireMacros % "provided",
