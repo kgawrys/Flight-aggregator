@@ -8,7 +8,7 @@ import akka.stream.scaladsl.{Flow, Keep, Source}
 import flightsaggregator.PollingActor.{Poll, ProdMessage, Stop}
 import flightsaggregator.kafka.{KafkaConfig, KafkaProducer}
 import flightsaggregator.opensky.OpenSkyService
-import flightsaggregator.opensky.domain.{FlightState, OpenSkyStatesRequest, OpenSkyStatesResponse}
+import flightsaggregator.opensky.domain._
 import flightsaggregator.stream.StreamHelpers
 import org.apache.kafka.clients.producer.ProducerRecord
 import flightsaggregator.core.http.json.FlightAggregatorJsonFormats._
@@ -37,7 +37,7 @@ class PollingActor(
       states.map {
         case resp: OpenSkyStatesResponse.States =>
           logger.info(s"response have: ${resp.states.size}")
-          Source.apply(resp.states)
+          Source.apply(resp.states.map(toFlightStateMsg))
             .via(resumeFlowOnError(toKafkaRecord)(logger))
             .toMat(kafkaProducer.asSink)(Keep.both)
             .run()
@@ -50,6 +50,8 @@ class PollingActor(
     case _ =>
       logger.warning("Unknown message received")
   }
+
+  private def toFlightStateMsg(s: OpenSkyState) = FlightState(s.icao24, s.originCountry, s.timePosition, s.onGround)
 
   private val toKafkaRecord: Flow[FlightState, ProdMessage, NotUsed] =
     Flow[FlightState]

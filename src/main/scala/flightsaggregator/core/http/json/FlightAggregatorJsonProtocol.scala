@@ -3,7 +3,7 @@ package flightsaggregator.core.http.json
 import java.util.UUID
 
 import flightsaggregator.core.http.Error
-import flightsaggregator.opensky.domain.FlightState
+import flightsaggregator.opensky.domain.OpenSkyState
 import spray.json.{JsString, _}
 
 import scala.util.Try
@@ -42,16 +42,16 @@ trait FlightAggregatorJsonProtocol extends DefaultJsonProtocol {
     private val deserializationErrorMessage = "Flight-aggregator Error could not be created from given string"
   }
 
-  implicit val flightStateJsonFormat = new RootJsonFormat[FlightState] {
-    override def write(obj: FlightState): JsValue = ???
-    override def read(json: JsValue): FlightState = json match {
+  implicit val openSkyStateJsonFormat = new RootJsonFormat[OpenSkyState] {
+    override def write(obj: OpenSkyState): JsValue = ???
+    override def read(json: JsValue): OpenSkyState = json match {
       case JsArray(Vector(JsString(icao24), _, JsString(origin), timePosition, _, _, _, _, JsBoolean(onGround), _, _, _, _)) =>
         val time = timePosition match {
           case JsNumber(t) => Some(t)
           case JsNull      => None
           case _           => deserializationError(s"Couldn't parse timePosition: $timePosition")
         }
-        FlightState(icao24, origin, time, onGround)
+        OpenSkyState(icao24, origin, time, onGround)
       case _ =>
         deserializationError(s"Couldn't parse state json array: $json")
     }

@@ -12,7 +12,7 @@ import akka.stream.Materializer
 import flightsaggregator.core.http.Error
 import flightsaggregator.core.http.json.FlightAggregatorJsonProtocol._
 import flightsaggregator.opensky.domain.OpenSkyStatesResponse.States
-import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyStatesRequest, OpenSkyStatesResponse}
+import flightsaggregator.opensky.domain._
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
