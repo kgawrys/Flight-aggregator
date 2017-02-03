@@ -25,7 +25,7 @@ class FlightStateService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig,
 
   private val cassandraWriterFlow: Flow[FlightState, Unit, NotUsed] =
     Flow[FlightState]
-      .mapAsync(parallelism = 4) { flight => saveFlightState(flight) }
+      .mapAsyncUnordered(parallelism = 4) { flight => saveFlightState(flight) }
 
   val savingStream = kafkaSource
     .via(resumeFlowOnError(transformFlow)(logger))
