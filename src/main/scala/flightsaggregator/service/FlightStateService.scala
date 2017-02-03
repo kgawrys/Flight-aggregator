@@ -25,11 +25,16 @@ class FlightStateService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig,
 
   private val loggingSink: Sink[FlightState, Future[Done]] = Sink.foreach(elem => logger.info(s"elem ${elem.toString}"))
 
+  private val cassandraWriterFlow: Flow[FlightState, Unit, NotUsed] =
+    Flow[FlightState]
+      .mapAsync(parallelism = 4) { flight => saveFlightState(flight) }
+
   val savingStream = kafkaSource
     .via(resumeFlowOnError(transformFlow)(logger))
-    .to(loggingSink)
+    .via(resumeFlowOnError(cassandraWriterFlow)(logger))
+    .to(Sink.ignore)
 
-  def saveFlightState(flightState: FlightState) = {
+  def saveFlightState(flightState: FlightState): Future[Unit] = {
     flightStatesRepository.storeFlightEvent(flightState).map {
       case true =>
         logger.info("Element Saved successfully")

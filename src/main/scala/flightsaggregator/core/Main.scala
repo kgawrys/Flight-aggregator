@@ -8,7 +8,7 @@ import com.websudos.phantom.connectors.ContactPoint
 import flightsaggregator.core.cassandra.{AppDatabase, CassandraConfig}
 import flightsaggregator.kafka._
 import flightsaggregator.opensky.OpenSkyService
-import flightsaggregator.opensky.domain.{FlightState, OpenSkyConfig, OpenSkyHost}
+import flightsaggregator.opensky.domain.{OpenSkyConfig, OpenSkyHost}
 import flightsaggregator.repository.FlightStateRepository
 import flightsaggregator.service.PollingActor.Poll
 import flightsaggregator.service.{AggregatorService, FlightStateService, PollingActor}
