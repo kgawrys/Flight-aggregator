@@ -62,10 +62,10 @@ trait Setup {
   lazy val connector = ContactPoint.apply(cassandraConfig.hostname, cassandraConfig.port).keySpace(cassandraConfig.keyspace)
   lazy val db = new AppDatabase(connector)
   lazy val flightStateRepository: FlightStateRepository = wire[FlightStateRepository]
-  lazy val flightStateService: FlightStateService = wire[FlightStateService]
-
-  lazy val kafkaProducer: KafkaProducer = wire[KafkaProducer]
   lazy val kafkaConsumer: KafkaConsumer = wire[KafkaConsumer]
+  lazy val kafkaProducer: KafkaProducer = wire[KafkaProducer]
+
+  lazy val flightStateService: FlightStateService = wire[FlightStateService]
   lazy val openSkyService: OpenSkyService = wire[OpenSkyService]
   lazy val aggregatorService: AggregatorService = wire[AggregatorService]
 }
@@ -75,10 +75,13 @@ object Main extends App with Setup {
   implicit val executor = system.dispatcher
   implicit val materializer = ActorMaterializer()
 
+  // Actor periodically polling OpenSky API
   val pollFlightsActor = system.actorOf(Props(new PollingActor(logger, openSkyService, kafkaProducer, kafkaConfig)))
   system.scheduler.schedule(0 seconds, appConfig.pollInterval seconds, pollFlightsActor, Poll)
 
-  aggregatorService.graph.run()
+  // Stream aggregating flights in time window
+  aggregatorService.graph.run
 
-  flightStateService.saveFlightState(FlightState("samolocik", "PL", Some(BigDecimal(1)), false))
+  // Stream saving all flight states to Cassandra
+  flightStateService.graph.run
 }

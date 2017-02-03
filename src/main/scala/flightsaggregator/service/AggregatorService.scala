@@ -9,15 +9,15 @@ import akka.{Done, NotUsed}
 import flightsaggregator.core.AppConfig
 import flightsaggregator.kafka.{KafkaConfig, KafkaConsumer}
 import flightsaggregator.opensky.domain.FlightState
-import flightsaggregator.service.AggregatorService.{ConsumerMessage, OriginFlights}
+import flightsaggregator.service.AggregatorService.OriginFlights
 import spray.json._
 import flightsaggregator.core.http.json.FlightAggregatorJsonFormats._
+import flightsaggregator.kafka.KafkaConsumer.ConsumerMessage
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
 object AggregatorService {
-  type ConsumerMessage = CommittableMessage[Array[Byte], String]
   case class OriginFlights(origin: String, count: Int)
 }
 
@@ -25,7 +25,7 @@ class AggregatorService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, 
 
   import flightsaggregator.stream.StreamHelpers._
 
-  private val kafkaSource = kafkaConsumer.create("statesConsumer", kafkaConfig.stateTopic)(as)
+  private val kafkaSource = kafkaConsumer.create("aggregatorConsumer", kafkaConfig.stateTopic)(as)
 
   private val loggingFlow: Flow[ConsumerMessage, ConsumerMessage, NotUsed] =
     Flow[ConsumerMessage].map(m => { logger.info(m.toString); m })

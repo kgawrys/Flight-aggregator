@@ -3,16 +3,35 @@ package flightsaggregator.service
 import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.stream.Materializer
+import akka.stream.scaladsl.{Flow, Sink}
+import akka.{Done, NotUsed}
+import flightsaggregator.core.http.json.FlightAggregatorJsonFormats._
+import flightsaggregator.kafka.KafkaConsumer.ConsumerMessage
+import flightsaggregator.kafka.{KafkaConfig, KafkaConsumer}
 import flightsaggregator.opensky.domain.FlightState
 import flightsaggregator.repository.FlightStateRepository
+import flightsaggregator.stream.StreamHelpers._
+import spray.json._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
-class FlightStateService(flightStatesRepository: FlightStateRepository, logger: LoggingAdapter)(implicit ec: ExecutionContext, as: ActorSystem, mat: Materializer) {
+class FlightStateService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, flightStatesRepository: FlightStateRepository, logger: LoggingAdapter)(implicit ec: ExecutionContext, as: ActorSystem, mat: Materializer) {
+
+  private val kafkaSource = kafkaConsumer.create("savingConsumer", kafkaConfig.stateTopic)(as)
+
+  private val transformFlow: Flow[ConsumerMessage, FlightState, NotUsed] =
+    Flow[ConsumerMessage]
+      .map(m => m.record.value.parseJson.convertTo[FlightState])
+
+  private val loggingSink: Sink[FlightState, Future[Done]] = Sink.foreach(elem => logger.info(s"elem ${elem.toString}"))
+
+  val graph = kafkaSource
+    .via(resumeFlowOnError(transformFlow)(logger))
+    .to(loggingSink)
 
   def saveFlightState(flightState: FlightState) = {
     flightStatesRepository.storeFlightEvent(flightState).map {
-      case true  =>
+      case true =>
         logger.info("Element Saved successfully")
       case false =>
         logger.error(s"Failed to save element: ${flightState.toString}")
