@@ -42,7 +42,7 @@ class AggregatorService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, 
       .map(m => m.record.value.parseJson.convertTo[FlightState])
 
   /*
-    This solution is better the groupedWithin in terms of storing - as it only stores the aggregated result.
+    This solution is better than the groupedWithin in terms of storing - as it only stores the aggregated result.
     On the other hand it needs to "warm up" - so two first cycles are useless.
    */
   private val stats = Flow[FlightState]
