@@ -41,7 +41,7 @@ class AggregatorService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, 
       .map(m => m.record.value.parseJson.convertTo[FlightState])
 
   private val stats = Flow[FlightState]
-    .groupedWithin(10000, appConfig.windowInterval second)
+    .groupedWithin(Int.MaxValue, appConfig.windowInterval second)
     .map { s => s.groupBy(_.originCountry).map { kv => OriginFlights(kv._1, kv._2.size) } }
 
   val aggregatingStream = kafkaSource
