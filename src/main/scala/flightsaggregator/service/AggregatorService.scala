@@ -41,8 +41,11 @@ class AggregatorService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, 
     Flow[ConsumerMessage]
       .map(m => m.record.value.parseJson.convertTo[FlightState])
 
+  /*
+    This solution is better the groupedWithin in terms of storing - as it only stores the aggregated result.
+    On the other hand it needs to "warm up" - so two first cycles are useless.
+   */
   private val stats = Flow[FlightState]
-    // this solution stores only the aggregated result
     .conflateWithSeed(f => Map(f.originCountry -> List(f)))(aggregateElements)
     // generates time based backpressure on conflate
     .throttle(1, appConfig.windowInterval second, 1, ThrottleMode.shaping)
