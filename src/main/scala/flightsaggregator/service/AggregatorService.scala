@@ -2,7 +2,7 @@ package flightsaggregator.service
 
 import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
-import akka.stream.Materializer
+import akka.stream.{Materializer, ThrottleMode}
 import akka.stream.scaladsl.{Flow, Sink}
 import akka.{Done, NotUsed}
 import flightsaggregator.core.AppConfig
@@ -10,13 +10,14 @@ import flightsaggregator.core.http.json.FlightAggregatorJsonFormats._
 import flightsaggregator.kafka.KafkaConsumer.ConsumerMessage
 import flightsaggregator.kafka.{KafkaConfig, KafkaConsumer}
 import flightsaggregator.opensky.domain.FlightState
-import flightsaggregator.service.AggregatorService.OriginFlights
+import flightsaggregator.service.AggregatorService.{OriginCountry, OriginFlights}
 import spray.json._
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
 object AggregatorService {
+  type OriginCountry = String
   case class OriginFlights(origin: String, count: Int)
 }
 
@@ -41,8 +42,21 @@ class AggregatorService(kafkaConsumer: KafkaConsumer, kafkaConfig: KafkaConfig, 
       .map(m => m.record.value.parseJson.convertTo[FlightState])
 
   private val stats = Flow[FlightState]
-    .groupedWithin(Int.MaxValue, appConfig.windowInterval second)
-    .map { s => s.groupBy(_.originCountry).map { kv => OriginFlights(kv._1, kv._2.groupBy(_.icao24).size) } }
+    // this solution stores only the aggregated result
+    .conflateWithSeed(f => Map(f.originCountry -> List(f)))(aggregateElements)
+    // generates time based backpressure on conflate
+    .throttle(1, appConfig.windowInterval second, 1, ThrottleMode.shaping)
+    .map(_.mapValues(_.size))
+    .map(_.toList.map(f => OriginFlights(f._1, f._2)))
+
+  private def aggregateElements(flights: Map[OriginCountry, List[FlightState]], f: FlightState): Map[OriginCountry, List[FlightState]] =
+    flights.get(f.originCountry) match {
+      case Some(value) =>
+        // filter duplicate ICAO24s
+        if (!value.exists(_.icao24 == f.icao24)) flights + (f.originCountry -> (f :: value))
+        else flights
+      case None => flights + (f.originCountry -> List(f))
+    }
 
   val aggregatingStream = kafkaSource
     .via(resumeFlowOnError(transformFlow)(logger))
